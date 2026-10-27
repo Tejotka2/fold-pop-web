@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17165b">
+<meta name="description" content="Swipe the whole board. Match 3. Pop! Play FOLD POP!, a colorful puzzle with satisfying chains.">
+<title>FOLD POP!</title>
+<link rel="icon" href="index.icon.png">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#151554;color:#fff;font-family:system-ui,sans-serif}
+body{background:radial-gradient(ellipse at 50% 80%,#794df6 0%,#253ca1 45%,#101841 100%)}
+#game{position:fixed;inset:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);overflow:hidden}
+#canvas{width:100%;height:100%;display:block;outline:0;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+#loading{position:fixed;inset:0;display:grid;place-content:center;justify-items:center;gap:18px;background:radial-gradient(ellipse at 50% 70%,#6741c8,#202f89 55%,#121b4b);z-index:4;text-align:center;padding:24px}
+#loading img{width:min(65vw,340px);height:200px;object-fit:contain;filter:drop-shadow(0 12px 25px #14054088)}
+#loading p{margin:0;color:#dce6ff;max-width:36ch;line-height:1.5}progress{width:min(68vw,280px);height:12px;accent-color:#ffdf78;border-radius:20px}
+#problem{color:#ffdf78!important}button{font:600 13px system-ui,sans-serif;color:#fff;background:#211b64bb;border:1px solid #a9a0f788;border-radius:18px;padding:9px 14px;cursor:pointer;backdrop-filter:blur(8px)}
+#fullscreen{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(10px,env(safe-area-inset-bottom));z-index:2}
+#controls{position:fixed;left:18px;bottom:10px;font-size:12px;color:#d9ddffb0;pointer-events:none}
+@media(max-width:700px),(max-aspect-ratio:5/4){#controls,#fullscreen{display:none}}
+[hidden]{display:none!important}
+</style>
+<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
+<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+
+</head>
+<body>
+<main id="game" aria-label="FOLD POP! game"><canvas id="canvas" tabindex="0" aria-label="Puzzle board. Drag to swipe, or use arrow keys. Escape pauses.">Your browser needs WebGL 2.0 and WebAssembly to play.</canvas></main>
+<section id="loading" aria-live="polite"><img src="shell-logo.png" alt="FOLD POP!"><p id="status">Getting the candy ready…</p><progress id="progress" max="100" value="0"></progress><p id="problem" hidden></p><button id="retry" hidden onclick="location.reload()">Try again</button></section>
+<span id="controls">Drag or ↑ ↓ ← → · Esc to pause</span><button id="fullscreen" type="button" aria-label="Toggle fullscreen">Fullscreen</button>
+<script src="index.js"></script>
+<script>
+'use strict';
+const canvas=document.getElementById('canvas'), loading=document.getElementById('loading');
+const config={"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":8723852,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const engine=new Engine(config);
+const error=message=>{document.getElementById('problem').textContent=message;document.getElementById('problem').hidden=false;document.getElementById('status').textContent='Unable to start';document.getElementById('progress').hidden=true;document.getElementById('retry').hidden=false;loading.hidden=false;};
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('pointerdown',()=>canvas.focus({preventScroll:true}));
+canvas.addEventListener('wheel',e=>e.preventDefault(),{passive:false});
+// Prevent browser scrolling/selection only on the playing surface. System edge gestures remain owned by the browser.
+canvas.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();});
+document.getElementById('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.getElementById('game').requestFullscreen();canvas.focus();}catch(e){document.getElementById('fullscreen').textContent='Fullscreen unavailable';}});
+if(!document.fullscreenEnabled)document.getElementById('fullscreen').hidden=true;
+const qa=new URLSearchParams(location.search).get('qa')==='1';
+window.__foldPopLoad={started:performance.now()};
+if(typeof WebAssembly!=='object'||!Engine.isWebGLAvailable(2))error('This browser needs WebAssembly and WebGL 2.0. Try an updated Chrome, Firefox, Edge or Safari browser.');
+else engine.startGame({canvas,canvasResizePolicy:2,focusCanvas:true,args:qa?['--','--web-qa','--seed=840000']:[],
+ onProgress:(current,total)=>{if(total>0){document.getElementById('progress').value=current/total*100;document.getElementById('status').textContent='Loading '+Math.round(current/total*100)+'%';}},
+ onPrintError:line=>console.error(line),onExit:()=>error('The game stopped. Reload to play again.')
+}).then(()=>{loading.hidden=true;canvas.focus();window.__foldPopLoad.ready=performance.now();}).catch(e=>{console.error(e);error('The game could not load. Check your connection, then retry. '+String(e.message||e));});
+</script>
+</body>
+</html>
+
