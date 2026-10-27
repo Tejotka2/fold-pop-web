@@ -33,7 +33,7 @@ body{background:radial-gradient(ellipse at 50% 80%,#794df6 0%,#253ca1 45%,#10184
 <script>
 'use strict';
 const canvas=document.getElementById('canvas'), loading=document.getElementById('loading');
-const config={"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":8723852,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const config={"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":false,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":8723964,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const engine=new Engine(config);
 const error=message=>{document.getElementById('problem').textContent=message;document.getElementById('problem').hidden=false;document.getElementById('status').textContent='Unable to start';document.getElementById('progress').hidden=true;document.getElementById('retry').hidden=false;loading.hidden=false;};
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
